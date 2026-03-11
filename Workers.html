@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Small Pixel Features Recognition</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#111827;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#60a5fa;
+      --border:rgba(255,255,255,.10);
+    }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 0%, #111b35 0%, var(--bg) 45%) fixed;
+      color:var(--text);
+      line-height:1.6;
+    }
+    .container{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 20px 56px;
+    }
+    header{ margin-bottom: 18px; }
+    h1{
+      font-size: 2rem;
+      margin: 0 0 8px 0;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      color: var(--muted);
+      margin: 0;
+      max-width: 95ch;
+    }
+    .card{
+      background: rgba(17,24,39,.70);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+    }
+    h2{
+      font-size: 1.15rem;
+      margin: 0 0 8px 0;
+    }
+    ul{ margin: 8px 0 0 18px; }
+    a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover{ text-decoration: underline; }
+
+    .img-wrap{
+      margin-top: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+    }
+    .img-wrap img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .caption{
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 8px;
+    }
+
+    .btn-row{
+      display:flex;
+      gap:12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn{
+      display:inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(96,165,250,.14);
+      color: var(--text);
+      text-decoration: none;
+      transition: transform .05s ease, background .15s ease;
+    }
+    .btn:hover{
+      background: rgba(96,165,250,.22);
+      text-decoration: none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    footer{
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .92rem;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Small Pixel Features Recognition</h1>
+      <p class="subtitle">
+        Scenario: detect and track workers in construction videos. A worker is localized with a bounding box, assigned an ID,
+        and then continuously tracked over time (similar to vehicle detection & tracking in traffic surveillance).
+        This module compares a <strong>DINO-based</strong> detector with <strong>YOLOv8</strong>, focusing on far-field workers that occupy only a few pixels.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Why it matters</h2>
+      <ul>
+        <li>
+          <strong>Safety and risk monitoring:</strong> reliable worker localization is a prerequisite for zone intrusion alerts, proximity checks to hazards, and near-miss analysis.
+        </li>
+        <li>
+          <strong>Operational analytics:</strong> persistent worker tracking supports counting, movement pattern analysis, and time-in-area measurements.
+        </li>
+        <li>
+          <strong>Far-field cameras are common:</strong> many fixed site cameras cover large areas; workers appear tiny, so small-object sensitivity directly impacts usefulness.
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Method overview (DINO vs. YOLOv8)</h2>
+      <p>
+        This module uses a <strong>DINO-based</strong> approach to detect workers as bounding boxes and then track them across frames.
+        We compare it with <strong>YOLOv8</strong> to highlight performance differences on small, distant targets.
+      </p>
+
+      <p>
+        Conceptually, DINO learns representations that preserve local details. DINO introduces a <strong>patch-level objective</strong>:
+        the model is trained to predict features of masked regions from the visible patches through <strong>masked image modeling</strong>,
+        which encourages learning fine-grained local content instead of only global semantics.
+      </p>
+
+      <p>
+        Intuition: the training behaves like a “fill-in-the-blank” task for images—part of the image is hidden, and the network must reconstruct or predict
+        the missing region’s representation based on surrounding context. This helps the model remain sensitive to tiny visual cues (e.g., a few pixels of a distant worker).
+      </p>
+
+      <div class="img-wrap">
+        <!-- Assumes the image is in the same folder as this HTML file -->
+        <img src="Fill%20in%20the%20blank.jpg" alt="Masked image modeling intuition: fill-in-the-blank training" />
+      </div>
+      <p class="caption">
+        Figure: Masked image modeling—hide a region and learn to predict it from the visible context (similar to fill-in-the-blank).
+      </p>
+
+      <div class="img-wrap">
+        <img src="DINO.jpg" alt="DINO model structure diagram" />
+      </div>
+      <p class="caption">
+        Figure: DINO architecture / training pipeline (illustration).
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Strengths</h2>
+      <ul>
+        <li>
+          <strong>Strong small-object sensitivity:</strong> due to its training objective, DINO is more responsive to small patch-level cues,
+          enabling detection of far-field workers that may be missed by YOLOv8.
+        </li>
+        <li>
+          <strong>Less information loss:</strong> compared with many CNN backbones, <strong>DINOv3 representations</strong> are less prone to “washing out”
+          tiny objects during early down sampling.
+        </li>
+        <li>
+          <strong>Better coverage for fixed wide-angle cameras:</strong> improves worker detection in large scenes without needing zoomed-in cameras everywhere.
+        </li>
+      </ul>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>
+          <strong>Tracking discontinuity:</strong> if a person disappears from the screen or is blocked by cover, and then reappears,
+          the numbering/ID can become discontinuous because the model assigns a new embedding and a new ID.
+        </li>
+        <li>
+          <strong>Occlusions and exits:</strong> when workers move behind obstacles or leave the frame, long-term identity preservation becomes difficult without a stronger re-identification strategy.
+        </li>
+        <li>
+          <strong>Deployment complexity:</strong> achieving stable IDs usually requires integrating detection with tracking and re-ID logic (e.g., motion models + appearance matching),
+          not just per-frame detection.
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Demo videos</h2>
+      <ul>
+        <li>
+          YOLOv8 worker detection:
+          <a href="https://youtu.be/rqu3NsjmnOE" target="_blank" rel="noopener noreferrer">
+            https://youtu.be/rqu3NsjmnOE
+          </a>
+        </li>
+        <li>
+          DINO-based worker detection (small pixel features):
+          <a href="https://youtu.be/sjFn_gn97Nw" target="_blank" rel="noopener noreferrer">
+            https://youtu.be/sjFn_gn97Nw
+          </a>
+        </li>
+      </ul>
+
+      <div class="btn-row">
+        <a class="btn" href="https://youtu.be/rqu3NsjmnOE" target="_blank" rel="noopener noreferrer">Open YOLOv8 Demo</a>
+        <a class="btn" href="https://youtu.be/sjFn_gn97Nw" target="_blank" rel="noopener noreferrer">Open DINO Demo</a>
+      </div>
+    </section>
+
+    <footer>
+      <div>Module 3 — Small Pixel Features Recognition</div>
+      <a class="btn" href="Distance.html">Next Module →</a>
+    </footer>
+  </div>
+</body>
+</html>
