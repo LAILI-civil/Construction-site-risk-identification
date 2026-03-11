@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Training Set Creation from Real-World</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#111827;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#60a5fa;
+      --border:rgba(255,255,255,.10);
+    }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 0%, #111b35 0%, var(--bg) 45%) fixed;
+      color:var(--text);
+      line-height:1.6;
+    }
+    .container{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 20px 56px;
+    }
+    header{ margin-bottom: 18px; }
+    h1{
+      font-size: 2rem;
+      margin: 0 0 8px 0;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      color: var(--muted);
+      margin: 0;
+      max-width: 100ch;
+    }
+    .card{
+      background: rgba(17,24,39,.70);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+    }
+    h2{
+      font-size: 1.15rem;
+      margin: 0 0 8px 0;
+    }
+    ul{ margin: 8px 0 0 18px; }
+    a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover{ text-decoration: underline; }
+
+    .img-wrap{
+      margin-top: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+    }
+    .img-wrap img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .caption{
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 8px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (min-width: 860px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .btn-row{
+      display:flex;
+      gap:12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn{
+      display:inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(96,165,250,.14);
+      color: var(--text);
+      text-decoration: none;
+      transition: transform .05s ease, background .15s ease;
+    }
+    .btn:hover{
+      background: rgba(96,165,250,.22);
+      text-decoration: none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    footer{
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .92rem;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Training Set Creation from Real-World</h1>
+      <p class="subtitle">
+        Scenario: violations in construction are relatively rare, and even fewer are recorded and uploaded online.
+        This makes it difficult to collect enough “unsafe operation” examples for training vision models.
+        We therefore generate realistic violation samples based on real images using Stable Diffusion.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Why it matters</h2>
+      <ul>
+        <li>
+          <strong>Data imbalance breaks generalization:</strong> if the training set is ~98% correct operation and ~2% violations, the model tends to learn a strong bias toward “normal,”
+          and it may fail to detect rare unsafe behaviors in practice.
+        </li>
+        <li>
+          <strong>Safety models need balanced evidence:</strong> for reliable violation recognition, we want a more balanced distribution (e.g., ~50% vs ~50%) to reduce bias and improve recall.
+        </li>
+        <li>
+          <strong>Real-world realism matters:</strong> synthetic violation images must remain consistent with the site camera viewpoint, lighting, and background to be useful for training.
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Method overview (Stable Diffusion)</h2>
+      <p>
+        We use <strong>Stable Diffusion technology</strong> to create realistic “violation” samples from real-world images.
+        The core idea is <strong>text-to-image (and image editing)</strong>: provide a prompt describing the desired change and generate a modified image that matches the prompt while
+        preserving the original scene context.
+      </p>
+      <p>
+        A simple intuition: <strong>mask-and-replace</strong>. For example, mask the dog region in an image and prompt the model to replace it with a cat,
+        while keeping the rest of the image consistent.
+      </p>
+
+      <div class="img-wrap">
+        <img src="Stable%20diffusion.jpg" alt="Stable Diffusion illustration: text-to-image / masked editing" />
+      </div>
+      <p class="caption">
+        Figure: Stable Diffusion text-to-image / masked editing workflow (illustration).
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Example: generate realistic “unsafe operation” samples</h2>
+      <p>
+        Below is a real-world example from a pole worker scenario. The first image shows a <strong>compliant</strong> operation: the worker uses a welding mask properly.
+        The second image is generated using Stable Diffusion: the welding mask is replaced by a welding helmet, but the dark protective visor is not covering the eyes,
+        creating a realistic <strong>violation</strong> sample.
+      </p>
+
+      <div class="grid">
+        <div>
+          <div class="img-wrap">
+            <img src="Stable%20diffusion%20worker1.jpg" alt="Compliant operation: worker wearing welding mask correctly" />
+          </div>
+          <p class="caption">
+            Compliant sample: worker wears a welding mask properly.
+          </p>
+        </div>
+
+        <div>
+          <div class="img-wrap">
+            <img src="Stable%20diffusion%20worker2.jpg" alt="Generated violation sample: helmet visor not covering eyes" />
+          </div>
+          <p class="caption">
+            Generated violation sample: helmet is present, but the visor is not covering the eyes.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Strengths</h2>
+      <ul>
+        <li>
+          <strong>Improves dataset balance:</strong> enables creating violation samples when real cases are rare, supporting a more balanced training distribution.
+        </li>
+        <li>
+          <strong>Real-scene consistency:</strong> edits can preserve the original camera viewpoint/background, making samples closer to deployment data than fully synthetic renders.
+        </li>
+        <li>
+          <strong>Targeted augmentation:</strong> generate specific violation types (PPE misuse, missing protective gear, wrong wearing style) with controllable prompts and masks.
+        </li>
+      </ul>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>
+          <strong>Visual artifacts / realism gaps:</strong> generated images may contain subtle inconsistencies (edges, shadows, reflections) that can introduce noise during training.
+        </li>
+        <li>
+          <strong>Prompt sensitivity:</strong> results depend heavily on prompt design and masking quality; repeated trials may be needed for stable outputs.
+        </li>
+        <li>
+          <strong>Label reliability:</strong> synthetic violations must be carefully reviewed to ensure they match the intended safety rule (otherwise labels can become ambiguous).
+        </li>
+        <li>
+          <strong>Distribution shift risk:</strong> if synthetic samples look systematically different from real violations, the model may overfit to “synthetic cues.”
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      <div>Module 5 — Training Set Creation from Real-World</div>
+      <a class="btn" href="index.html">Back to Home →</a>
+    </footer>
+  </div>
+</body>
+</html>
