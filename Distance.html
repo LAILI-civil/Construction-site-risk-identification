@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Distance Estimation</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#111827;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#60a5fa;
+      --border:rgba(255,255,255,.10);
+    }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 0%, #111b35 0%, var(--bg) 45%) fixed;
+      color:var(--text);
+      line-height:1.6;
+    }
+    .container{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 20px 56px;
+    }
+    header{ margin-bottom: 18px; }
+    h1{
+      font-size: 2rem;
+      margin: 0 0 8px 0;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      color: var(--muted);
+      margin: 0;
+      max-width: 95ch;
+    }
+    .card{
+      background: rgba(17,24,39,.70);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+    }
+    h2{
+      font-size: 1.15rem;
+      margin: 0 0 8px 0;
+    }
+    ul{ margin: 8px 0 0 18px; }
+    a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover{ text-decoration: underline; }
+
+    .img-wrap{
+      margin-top: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+    }
+    .img-wrap img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .caption{
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 8px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    pre{
+      background: rgba(0,0,0,.35);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      overflow:auto;
+      margin: 10px 0 0;
+      white-space: pre;
+    }
+
+    .btn-row{
+      display:flex;
+      gap:12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn{
+      display:inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(96,165,250,.14);
+      color: var(--text);
+      text-decoration: none;
+      transition: transform .05s ease, background .15s ease;
+    }
+    .btn:hover{
+      background: rgba(96,165,250,.22);
+      text-decoration: none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    footer{
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .92rem;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Distance Estimation</h1>
+      <p class="subtitle">
+        Scenario: in a top-down (overhead) camera view, estimate whether the distance between vehicles and construction machinery is safe.
+        The workflow includes object detection (vehicles/personnel/equipment) and distance computation for collision-risk monitoring.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Why it matters</h2>
+      <ul>
+        <li>
+          <strong>Collision-risk prevention:</strong> continuously monitoring proximity between moving vehicles and heavy equipment helps reduce struck-by and equipment collision incidents.
+        </li>
+        <li>
+          <strong>Real-time safety alerts:</strong> if estimated distances fall below a threshold, the system can trigger warnings for supervisors or operators.
+        </li>
+        <li>
+          <strong>Low infrastructure overhead:</strong> a single overhead camera can cover a wide area and support site-wide proximity analytics.
+        </li>
+      </ul>
+
+      <div class="img-wrap">
+        <!-- Assumes the image is in the same folder as this HTML file -->
+        <img src="distance%20estimation.jpg" alt="Distance estimation concept for equipment collision risk" />
+      </div>
+      <p class="caption">
+        Figure: Proximity monitoring to reduce equipment collision risk in construction environments.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Method overview</h2>
+
+      <h2 style="margin-top:0;">Part 1 — Object detection + pixel distance</h2>
+      <p>
+        First, we perform object detection (bounding boxes) to identify vehicles/personnel/equipment at the construction site.
+        For each detected object, we compute a center point (centroid) and then calculate the distance between centroids in pixel space.
+      </p>
+
+      <div class="img-wrap">
+        <img src="distance%20estimation%20example.jpg" alt="Distance estimation example: detection and center-to-center pixel distance" />
+      </div>
+      <p class="caption">
+        Figure: Detect objects, compute their centroids, and measure center-to-center distance in pixels.
+      </p>
+
+      <h2>Part 2 — Angle correction + scale calibration (pixel → meters)</h2>
+      <p>
+        Next, we obtain pixel coordinates in the image and conduct <strong>scale calibration</strong> to convert pixel distance into real-world distance (meters).
+        Since the view can be tilted (not perfectly orthographic), we apply an angle-modified Ground Sampling Distance (GSD) to correct for perspective effects.
+      </p>
+
+      <pre>Obtain their pixel coordinates in the image.
+Then, conduct scale calibration (converting 'pixel distance' to 'meters').
+
+D = sqrt( (GSDx * (x1 - x2))^2 + (GSDy * (y1 - y2))^2 )
+
+GSDx = (H * f * cosθ) / (-dy * sinθ + f * cosθ)^2 * d
+GSDy = (H * f)       / (-dy * sinθ + f * cosθ)^2 * d
+
+Where:
+- GSD is Ground Sampling Distance after angle modified
+- H is the height of the camera
+- θ is the rotation angle
+- d is a pixel distance
+- f is the focal length</pre>
+    </section>
+
+    <section class="card">
+      <h2>Strengths</h2>
+      <ul>
+        <li>
+          <strong>Single-camera solution:</strong> only an overhead camera is needed to estimate distances over a large area.
+        </li>
+        <li>
+          <strong>Actionable safety metric:</strong> distance thresholds can be tied directly to site rules for near-miss monitoring and alarms.
+        </li>
+        <li>
+          <strong>Angle-aware scaling:</strong> the GSD-based correction helps reduce bias introduced by camera tilt (compared to raw pixel distance).
+        </li>
+      </ul>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>
+          <strong>Accuracy is sensitive to imaging conditions:</strong> distance estimates are affected by camera resolution, top-down angle/tilt, and detection accuracy.
+        </li>
+        <li>
+          <strong>Calibration dependency:</strong> errors in camera height, rotation angle, or focal length propagate directly into meter-level distance estimates.
+        </li>
+        <li>
+          <strong>Occlusion and box jitter:</strong> partial occlusion and unstable bounding boxes can cause noisy centroids and fluctuating distance outputs.
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Demo video</h2>
+      <p>
+        YouTube:
+        <a href="https://youtu.be/lQCvYmmWkJI" target="_blank" rel="noopener noreferrer">
+          https://youtu.be/lQCvYmmWkJI
+        </a>
+      </p>
+      <div class="btn-row">
+        <a class="btn" href="https://youtu.be/lQCvYmmWkJI" target="_blank" rel="noopener noreferrer">Open Demo on YouTube</a>
+      </div>
+    </section>
+
+    <footer>
+      <div>Module 4 — Distance Estimation</div>
+      <a class="btn" href="Sample.html">Next Module →</a>
+    </footer>
+  </div>
+</body>
+</html>
