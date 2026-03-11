@@ -144,6 +144,14 @@
         We compare it with <strong>YOLOv8</strong> to highlight performance differences on small, distant targets.
       </p>
 
+      <!-- DINO network structure image should be here -->
+      <div class="img-wrap">
+        <img src="DINO.jpg" alt="DINO model structure diagram" />
+      </div>
+      <p class="caption">
+        Figure: DINO architecture / training pipeline (illustration).
+      </p>
+
       <p>
         Conceptually, DINO learns representations that preserve local details. DINO introduces a <strong>patch-level objective</strong>:
         the model is trained to predict features of masked regions from the visible patches through <strong>masked image modeling</strong>,
@@ -155,19 +163,12 @@
         the missing region’s representation based on surrounding context. This helps the model remain sensitive to tiny visual cues (e.g., a few pixels of a distant worker).
       </p>
 
+      <!-- Fill-in-the-blank training principle image should be after the explanation -->
       <div class="img-wrap">
-        <!-- Assumes the image is in the same folder as this HTML file -->
         <img src="Fill%20in%20the%20blank.jpg" alt="Masked image modeling intuition: fill-in-the-blank training" />
       </div>
       <p class="caption">
         Figure: Masked image modeling—hide a region and learn to predict it from the visible context (similar to fill-in-the-blank).
-      </p>
-
-      <div class="img-wrap">
-        <img src="DINO.jpg" alt="DINO model structure diagram" />
-      </div>
-      <p class="caption">
-        Figure: DINO architecture / training pipeline (illustration).
       </p>
     </section>
 
@@ -180,7 +181,7 @@
         </li>
         <li>
           <strong>Less information loss:</strong> compared with many CNN backbones, <strong>DINOv3 representations</strong> are less prone to “washing out”
-          tiny objects during early down sampling.
+          tiny objects during early down sampling。
         </li>
         <li>
           <strong>Better coverage for fixed wide-angle cameras:</strong> improves worker detection in large scenes without needing zoomed-in cameras everywhere.
