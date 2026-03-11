@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Construction Classification (CLIP Model)</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#111827;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#60a5fa;
+      --border:rgba(255,255,255,.10);
+    }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 0%, #111b35 0%, var(--bg) 45%) fixed;
+      color:var(--text);
+      line-height:1.6;
+    }
+    .container{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 20px 56px;
+    }
+    header{
+      margin-bottom: 18px;
+    }
+    h1{
+      font-size: 2rem;
+      margin: 0 0 8px 0;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      color: var(--muted);
+      margin: 0;
+      max-width: 80ch;
+    }
+    .card{
+      background: rgba(17,24,39,.70);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+    }
+    h2{
+      font-size: 1.15rem;
+      margin: 0 0 8px 0;
+    }
+    ul{
+      margin: 8px 0 0 18px;
+    }
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    pre{
+      background: rgba(0,0,0,.35);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      overflow:auto;
+      margin: 10px 0 0;
+    }
+    .img-wrap{
+      margin-top: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+    }
+    .img-wrap img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .caption{
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 8px;
+    }
+    a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover{ text-decoration: underline; }
+
+    .btn-row{
+      display:flex;
+      gap:12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn{
+      display:inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(96,165,250,.14);
+      color: var(--text);
+      text-decoration: none;
+      transition: transform .05s ease, background .15s ease;
+    }
+    .btn:hover{
+      background: rgba(96,165,250,.22);
+      text-decoration: none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    footer{
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .92rem;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Construction Classification (CLIP Model)</h1>
+      <p class="subtitle">
+        Goal: categorize the tasks performed by workers in a construction video (productivity analytics),
+        e.g., <em>concrete pouring</em>, <em>rebar work</em>, <em>scaffold work</em>, and <em>formwork work</em>.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Why it matters (Productivity)</h2>
+      <p>
+        Construction sites often lack fine-grained, time-resolved records of what tasks are actually being performed.
+        By classifying worker activities directly from video, we can automatically generate task timelines that support
+        productivity measurement, progress tracking, and workflow optimization.
+      </p>
+
+      <h2>Example output</h2>
+      <p class="caption">After inference, the system can produce time segments per activity:</p>
+      <pre>=== Time segments per activity ===
+- Concrete Pouring:
+  0.03s -> 3.07s  (dur 3.03s)
+- Rebar Work:
+  12.40s -> 37.13s  (dur 24.73s)
+- Scaffold Work:
+  3.30s -> 6.57s  (dur 3.27s)
+  7.73s -> 12.40s  (dur 4.67s)
+- Formwork Work:
+  37.13s -> 39.17s  (dur 2.03s)</pre>
+    </section>
+
+    <section class="card">
+      <h2>Method overview (CLIP)</h2>
+      <p>
+        We use a CLIP model to match visual content with natural-language descriptions of construction activities.
+        Given a video (sampled into frames or short clips) and a set of text prompts (activity labels),
+        CLIP computes image–text similarity scores and assigns the most relevant activity to each segment.
+      </p>
+
+      <div class="img-wrap">
+        <!-- Assumes the image is in the same folder as this HTML file -->
+        <img src="CLIP%20model%20explain.jpg" alt="CLIP model explanation diagram" />
+      </div>
+      <p class="caption">
+        Figure: CLIP aligns image embeddings and text embeddings, enabling zero-shot classification via prompts.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Strengths</h2>
+      <ul>
+        <li><strong>Zero-shot capability:</strong> no additional training is required for new activity labels; you can extend classes by adding text prompts.</li>
+        <li><strong>Fast iteration:</strong> prompt engineering enables quick experimentation without collecting and labeling a large dataset.</li>
+        <li><strong>Flexible label space:</strong> supports open-vocabulary descriptions (e.g., “worker tying rebar”, “worker moving rebar”).</li>
+        <li><strong>Good baseline:</strong> provides a strong starting point for productivity categorization before investing in task-specific models.</li>
+      </ul>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>
+          <strong>Fine-grained action confusion:</strong> CLIP models are prone to errors when dealing with detailed action classifications,
+          such as whether a worker is <em>tying</em> or <em>moving</em> steel bars during rebar construction.
+        </li>
+        <li>
+          <strong>Prompt sensitivity:</strong> prompts can help refine distinctions, but performance may still be limited when actions are visually similar.
+        </li>
+        <li>
+          <strong>Close similarity scores:</strong> for activities within the same category, similarity values can be very close, making the decision unstable.
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Demo video</h2>
+      <p>
+        YouTube (Shorts): 
+        <a href="https://youtube.com/shorts/4O_ikBSYLjo" target="_blank" rel="noopener noreferrer">
+          https://youtube.com/shorts/4O_ikBSYLjo
+        </a>
+      </p>
+
+      <!-- Optional: inline embed (Shorts sometimes behave differently; link above is the most reliable) -->
+      <div class="btn-row">
+        <a class="btn" href="https://youtube.com/shorts/4O_ikBSYLjo" target="_blank" rel="noopener noreferrer">Open Demo on YouTube</a>
+      </div>
+    </section>
+
+    <footer>
+      <div>Module 1 — Construction Classification (CLIP)</div>
+      <!-- Update this href to your next module page filename -->
+      <a class="btn" href="module-2.html">Next Module →</a>
+    </footer>
+  </div>
+</body>
+</html>
